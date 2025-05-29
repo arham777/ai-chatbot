@@ -3,8 +3,13 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Search, Library, Plus } from 'lucide-react';
 
+interface RecentChat {
+  id: string;
+  title: string;
+}
+
 interface ChatSidebarProps {
-  recentChats: string[];
+  recentChats: RecentChat[];
   onNewChat: () => void;
   onSelectChat: (chatId: string) => void;
   selectedChat: string;
@@ -57,17 +62,17 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
             <div className="space-y-1">
               {recentChats.map((chat, index) => (
                 <Button
-                  key={chat}
+                  key={chat.id}
                   variant="ghost"
-                  onClick={() => onSelectChat(chat)}
+                  onClick={() => onSelectChat(chat.id)}
                   className={`w-full justify-start text-left text-gray-300 hover:bg-gray-800/50 hover:text-white truncate rounded-xl transition-all duration-200 transform hover:translate-x-1 ${
-                    selectedChat === chat ? 'bg-gray-800/70 text-white shadow-md' : ''
+                    selectedChat === chat.id ? 'bg-gray-800/70 text-white shadow-md' : ''
                   }`}
                   style={{
                     animationDelay: `${index * 50}ms`
                   }}
                 >
-                  <span className="truncate">{chat}</span>
+                  <span className="truncate">{chat.title}</span>
                 </Button>
               ))}
             </div>

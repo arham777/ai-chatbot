@@ -14,11 +14,11 @@ interface Message {
 
 interface ChatInterfaceProps {
   chatId: string;
-  onNewMessage: (message: string) => void;
+  messages: Message[];
+  onNewMessage: (userMessage: string, aiResponse: string) => void;
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, onNewMessage }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, messages, onNewMessage }) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -31,34 +31,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, onNewMessage }) =
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    setMessages([]);
-  }, [chatId]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: inputValue,
-      isUser: true,
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    onNewMessage(inputValue);
+    const userMessage = inputValue;
     setInputValue('');
     setIsLoading(true);
 
+    // Simulate AI response delay
     setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: "I'm a demo AI response. In a real application, this would be connected to an actual AI service.",
-        isUser: false,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, aiMessage]);
+      const aiResponse = "I'm a demo AI response. In a real application, this would be connected to an actual AI service.";
+      onNewMessage(userMessage, aiResponse);
       setIsLoading(false);
     }, 1000);
   };
