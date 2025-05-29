@@ -3,6 +3,9 @@ import ChatSidebar from '../components/ChatSidebar';
 import ChatInterface from '../components/ChatInterface';
 import { GoogleGenerativeAI, ChatSession as GeminiChatSession, Content } from "@google/generative-ai";
 
+// Helper to check if we're in a mobile-like viewport
+const isMobileView = () => typeof window !== 'undefined' && window.innerWidth < 768; // Tailwind's 'md' breakpoint is 768px
+
 // Access your API key (see "Set up your API key" above)
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
@@ -27,8 +30,29 @@ const Index = () => {
   const [currentChatId, setCurrentChatId] = useState<string>('new-chat');
   const [currentMessages, setCurrentMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Initialize sidebar state based on current view when component mounts
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => !isMobileView());
+  // Store the previous view type to detect changes
+  const prevIsMobileViewRef = useRef(isMobileView());
   const activeChatRef = useRef<GeminiChatSession | null>(null);
+
+  // Effect to handle window resize for sidebar visibility
+  useEffect(() => {
+    const handleResize = () => {
+      const currentIsMobile = isMobileView();
+      // Only update if the view mode (mobile/desktop) has changed
+      if (currentIsMobile !== prevIsMobileViewRef.current) {
+        setIsSidebarOpen(!currentIsMobile); // Set to default for the new view mode
+        prevIsMobileViewRef.current = currentIsMobile;
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', handleResize);
+      // Clean up
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []); // Empty dependency array means this effect runs once on mount and cleanup on unmount.
 
   // Load chat sessions and current chat ID from localStorage on initial render
   useEffect(() => {
