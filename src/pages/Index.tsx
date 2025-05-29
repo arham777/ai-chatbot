@@ -33,40 +33,12 @@ const Index = () => {
   };
 
   const handleNewChat = () => {
-    // Save current chat if it has messages
-    if (currentMessages.length > 0 && currentChatId === 'new-chat') {
-      const newChatSession: ChatSession = {
-        id: Date.now().toString(),
-        title: currentMessages[0]?.text.length > 30 
-          ? currentMessages[0].text.substring(0, 30) + '...' 
-          : currentMessages[0]?.text || 'New Chat',
-        messages: currentMessages,
-        createdAt: new Date()
-      };
-      
-      setChatSessions(prev => [newChatSession, ...prev.slice(0, 9)]);
-    }
-    
     // Start new chat
     setCurrentChatId('new-chat');
     setCurrentMessages([]);
   };
 
   const handleSelectChat = (chatId: string) => {
-    // Save current chat if it's new and has messages
-    if (currentMessages.length > 0 && currentChatId === 'new-chat') {
-      const newChatSession: ChatSession = {
-        id: Date.now().toString(),
-        title: currentMessages[0]?.text.length > 30 
-          ? currentMessages[0].text.substring(0, 30) + '...' 
-          : currentMessages[0]?.text || 'New Chat',
-        messages: currentMessages,
-        createdAt: new Date()
-      };
-      
-      setChatSessions(prev => [newChatSession, ...prev.slice(0, 9)]);
-    }
-
     setCurrentChatId(chatId);
     
     // Load selected chat messages
@@ -93,7 +65,34 @@ const Index = () => {
       timestamp: new Date(),
     };
 
-    setCurrentMessages(prev => [...prev, userMsg, aiMsg]);
+    const newMessages = [...currentMessages, userMsg, aiMsg];
+    setCurrentMessages(newMessages);
+
+    // If this is a new chat (first message), save it to recent chats
+    if (currentChatId === 'new-chat' && currentMessages.length === 0) {
+      const newChatId = Date.now().toString();
+      const chatTitle = userMessage.length > 30 
+        ? userMessage.substring(0, 30) + '...' 
+        : userMessage;
+      
+      const newChatSession: ChatSession = {
+        id: newChatId,
+        title: chatTitle,
+        messages: newMessages,
+        createdAt: new Date()
+      };
+      
+      setChatSessions(prev => [newChatSession, ...prev.slice(0, 9)]);
+      setCurrentChatId(newChatId);
+    } 
+    // If it's an existing chat, update it in the sessions
+    else if (currentChatId !== 'new-chat') {
+      setChatSessions(prev => prev.map(chat => 
+        chat.id === currentChatId 
+          ? { ...chat, messages: newMessages }
+          : chat
+      ));
+    }
   };
 
   const recentChatTitles = chatSessions.map(chat => ({
