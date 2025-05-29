@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Send, Sparkles } from 'lucide-react';
 import ChatMessage from './ChatMessage';
 
 interface Message {
@@ -31,7 +32,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, onNewMessage }) =
   }, [messages]);
 
   useEffect(() => {
-    // Reset messages when chat changes
     setMessages([]);
   }, [chatId]);
 
@@ -51,7 +51,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, onNewMessage }) =
     setInputValue('');
     setIsLoading(true);
 
-    // Simulate AI response
     setTimeout(() => {
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -64,61 +63,53 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, onNewMessage }) =
     }, 1000);
   };
 
+  const suggestedPrompts = [
+    { title: "Plan a trip", subtitle: "Help me plan a vacation", prompt: "Help me plan a trip" },
+    { title: "Write code", subtitle: "Help with programming tasks", prompt: "Write code" },
+    { title: "Explain concepts", subtitle: "Break down complex topics", prompt: "Explain a concept" },
+    { title: "Creative writing", subtitle: "Stories, poems, and more", prompt: "Creative writing" }
+  ];
+
   return (
-    <div className="flex flex-col h-screen bg-[#212121]">
+    <div className="flex flex-col h-screen bg-[#212121] relative">
       {/* Chat Header */}
-      <div className="flex items-center justify-center p-4 border-b border-gray-700">
-        <h1 className="text-xl font-semibold text-white">ChatGPT</h1>
+      <div className="flex items-center justify-center p-6 border-b border-gray-800/50 backdrop-blur-sm bg-[#212121]/80">
+        <div className="flex items-center space-x-2">
+          <Sparkles className="h-6 w-6 text-purple-500 animate-pulse" />
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            ChatGPT
+          </h1>
+        </div>
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-3xl font-semibold text-white mb-4">
-              What can I help with?
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
-              <Button
-                variant="outline"
-                className="p-4 h-auto text-left bg-transparent border-gray-600 hover:bg-gray-700 text-gray-300"
-                onClick={() => setInputValue("Help me plan a trip")}
-              >
-                <div>
-                  <div className="font-medium">Plan a trip</div>
-                  <div className="text-sm text-gray-400">Help me plan a vacation</div>
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                className="p-4 h-auto text-left bg-transparent border-gray-600 hover:bg-gray-700 text-gray-300"
-                onClick={() => setInputValue("Write code")}
-              >
-                <div>
-                  <div className="font-medium">Write code</div>
-                  <div className="text-sm text-gray-400">Help with programming tasks</div>
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                className="p-4 h-auto text-left bg-transparent border-gray-600 hover:bg-gray-700 text-gray-300"
-                onClick={() => setInputValue("Explain a concept")}
-              >
-                <div>
-                  <div className="font-medium">Explain concepts</div>
-                  <div className="text-sm text-gray-400">Break down complex topics</div>
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                className="p-4 h-auto text-left bg-transparent border-gray-600 hover:bg-gray-700 text-gray-300"
-                onClick={() => setInputValue("Creative writing")}
-              >
-                <div>
-                  <div className="font-medium">Creative writing</div>
-                  <div className="text-sm text-gray-400">Stories, poems, and more</div>
-                </div>
-              </Button>
+          <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in">
+            <div className="mb-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-4 mx-auto shadow-lg">
+                <Sparkles className="h-8 w-8 text-white" />
+              </div>
+              <h2 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                What can I help with?
+              </h2>
+              <p className="text-gray-400 text-lg">Start a conversation with AI</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl w-full">
+              {suggestedPrompts.map((prompt, index) => (
+                <Button
+                  key={prompt.title}
+                  variant="outline"
+                  className="p-6 h-auto text-left bg-gray-800/50 border-gray-700/50 hover:bg-gray-700/50 text-gray-300 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg group backdrop-blur-sm"
+                  onClick={() => setInputValue(prompt.prompt)}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div>
+                    <div className="font-medium group-hover:text-white transition-colors duration-200">{prompt.title}</div>
+                    <div className="text-sm text-gray-400 mt-1">{prompt.subtitle}</div>
+                  </div>
+                </Button>
+              ))}
             </div>
           </div>
         ) : (
@@ -131,12 +122,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, onNewMessage }) =
               />
             ))}
             {isLoading && (
-              <div className="flex justify-start mb-4">
-                <div className="bg-gray-700 px-4 py-3 rounded-lg">
+              <div className="flex justify-start mb-6 animate-fade-in">
+                <div className="bg-gray-800/80 backdrop-blur-sm px-6 py-4 rounded-2xl shadow-lg border border-gray-700/50">
                   <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce"></div>
+                    <div className="w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
                 </div>
               </div>
@@ -147,28 +138,28 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, onNewMessage }) =
       </div>
 
       {/* Input Container */}
-      <div className="p-4 border-t border-gray-700">
+      <div className="p-6 border-t border-gray-800/50 backdrop-blur-sm bg-[#212121]/80">
         <div className="max-w-4xl mx-auto">
-          <form onSubmit={handleSubmit} className="flex space-x-2">
-            <div className="flex-1 relative">
+          <form onSubmit={handleSubmit} className="relative">
+            <div className="relative group">
               <Input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Ask anything"
-                className="w-full bg-[#171717] border-gray-600 text-white placeholder-gray-400 focus:border-gray-500 pr-12"
+                placeholder="Ask anything..."
+                className="w-full bg-gray-800/50 border-gray-700/50 text-white placeholder-gray-400 focus:border-purple-500 pr-14 rounded-2xl py-4 px-6 text-lg backdrop-blur-sm shadow-lg transition-all duration-300 focus:shadow-xl group-hover:shadow-lg"
                 disabled={isLoading}
               />
               <Button
                 type="submit"
                 size="sm"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white text-black hover:bg-gray-200 disabled:opacity-50"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl w-10 h-10 transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-105"
                 disabled={!inputValue.trim() || isLoading}
               >
-                ↑
+                <Send className="h-4 w-4" />
               </Button>
             </div>
           </form>
-          <p className="text-xs text-gray-400 mt-2 text-center">
+          <p className="text-xs text-gray-500 mt-3 text-center">
             ChatGPT can make mistakes. Check important info.
           </p>
         </div>
